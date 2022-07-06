@@ -8,7 +8,7 @@ contract ECDSAMock {
     using ECDSA for bytes32;
     using ECDSA for bytes;
 
-    function recover(bytes32 hash, bytes memory signature) public pure returns (address) {
+    function recover(bytes32 hash, bytes memory signature) public view returns (address) {
         return hash.recover(signature);
     }
 
@@ -18,7 +18,7 @@ contract ECDSAMock {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public pure returns (address) {
+    ) public view returns (address) {
         return hash.recover(v, r, s);
     }
 
@@ -27,7 +27,7 @@ contract ECDSAMock {
         bytes32 hash,
         bytes32 r,
         bytes32 vs
-    ) public pure returns (address) {
+    ) public view returns (address) {
         return hash.recover(r, vs);
     }
 

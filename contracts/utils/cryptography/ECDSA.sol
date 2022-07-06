@@ -54,7 +54,7 @@ library ECDSA {
      *
      * _Available since v4.3._
      */
-    function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError) {
+    function tryRecover(bytes32 hash, bytes memory signature) internal view returns (address, RecoverError) {
         // Check the signature length
         // - case 65: r,s,v signature (standard)
         // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098) _Available since v4.1._
@@ -101,7 +101,7 @@ library ECDSA {
      * this is by receiving a hash of the original message (which may otherwise
      * be too long), and then calling {toEthSignedMessageHash} on it.
      */
-    function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
+    function recover(bytes32 hash, bytes memory signature) internal view returns (address) {
         (address recovered, RecoverError error) = tryRecover(hash, signature);
         _throwError(error);
         return recovered;
@@ -118,7 +118,7 @@ library ECDSA {
         bytes32 hash,
         bytes32 r,
         bytes32 vs
-    ) internal pure returns (address, RecoverError) {
+    ) internal view returns (address, RecoverError) {
         bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
         uint8 v = uint8((uint256(vs) >> 255) + 27);
         return tryRecover(hash, v, r, s);
@@ -133,7 +133,7 @@ library ECDSA {
         bytes32 hash,
         bytes32 r,
         bytes32 vs
-    ) internal pure returns (address) {
+    ) internal view returns (address) {
         (address recovered, RecoverError error) = tryRecover(hash, r, vs);
         _throwError(error);
         return recovered;
@@ -150,7 +150,7 @@ library ECDSA {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) internal pure returns (address, RecoverError) {
+    ) internal view returns (address, RecoverError) {
         // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
         // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
         // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}. Most
@@ -168,7 +168,18 @@ library ECDSA {
         }
 
         // If the signature is valid (and not malleable), return the signer address
-        address signer = ecrecover(hash, v, r, s);
+        address signer;
+        assembly { // solhint-disable-line no-inline-assembly
+            let ptr := mload(0x40)
+
+            mstore(ptr, hash)
+            mstore(add(ptr, 0x20), v)
+            mstore(add(ptr, 0x40), r)
+            mstore(add(ptr, 0x60), s)
+            if staticcall(gas(), 0x1, ptr, 0x80, 0, 0x20) {
+                signer := mload(0)
+            }
+        }
         if (signer == address(0)) {
             return (address(0), RecoverError.InvalidSignature);
         }
@@ -185,7 +196,7 @@ library ECDSA {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) internal pure returns (address) {
+    ) internal view returns (address) {
         (address recovered, RecoverError error) = tryRecover(hash, v, r, s);
         _throwError(error);
         return recovered;

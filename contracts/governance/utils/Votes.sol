@@ -33,7 +33,13 @@ abstract contract Votes is IVotes, Context, EIP712 {
     using Counters for Counters.Counter;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
-        keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+        keccak256(
+            "Delegation("
+            "address delegatee,"
+            "uint256 nonce,"
+            "uint256 expiry"
+            ")"
+        );
 
     mapping(address => address) private _delegation;
     mapping(address => Checkpoints.History) private _delegateCheckpoints;

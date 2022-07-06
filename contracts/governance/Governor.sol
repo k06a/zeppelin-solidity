@@ -31,9 +31,23 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
 
-    bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
+    bytes32 public constant BALLOT_TYPEHASH =
+        keccak256(
+            "Ballot("
+            "uint256 proposalId,"
+            "uint8 support"
+            ")"
+        );
+
     bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
-        keccak256("ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)");
+        keccak256(
+            "ExtendedBallot("
+            "uint256 proposalId,"
+            "uint8 support,"
+            "string reason,"
+            "bytes params"
+            ")"
+        );
 
     struct ProposalCore {
         Timers.BlockNumber voteStart;
